@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>服装智能采购系统 · 置信度级联架构定论</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background:#f5f6fa; color:#2c3e50; padding:24px; }
+  h1 { font-size:22px; margin-bottom:4px; }
+  .sub { color:#7f8c8d; font-size:13px; margin-bottom:24px; }
+  .entries { display:flex; gap:16px; margin-bottom:28px; }
+  .entry { flex:1; border:2px dashed #bdc3c7; border-radius:12px; padding:28px; text-align:center; background:#fff; }
+  .entry .icon { font-size:32px; margin-bottom:8px; }
+  .entry .label { font-size:16px; font-weight:600; }
+  .flow { background:#fff; border-radius:12px; padding:20px; margin-bottom:24px; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+  .flow h2 { font-size:16px; margin-bottom:16px; color:#34495e; }
+  .layer { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .layer .num { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px; flex-shrink:0; }
+  .layer .box { flex:1; border-radius:8px; padding:12px 16px; color:#fff; font-size:14px; }
+  .l1 .num,.l1 .box { background:#8e44ad; }
+  .l2 .num,.l2 .box { background:#2980b9; }
+  .l3 .num,.l3 .box { background:#16a085; }
+  .l4 .num,.l4 .box { background:#d35400; }
+  .l5 .num,.l5 .box { background:#c0392b; }
+  .arrow { text-align:center; color:#bdc3c7; font-size:18px; margin:2px 0; }
+  .newsku { background:#fff3cd; border:1px solid #ffeaa7; border-radius:8px; padding:12px 16px; margin:10px 0 10px 44px; font-size:13px; color:#856404; }
+  .notes { background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.06); font-size:13px; line-height:1.8; color:#555; }
+  .notes b { color:#2c3e50; }
+  .tag { display:inline-block; background:#ecf0f1; border-radius:4px; padding:2px 8px; font-size:12px; margin-right:6px; }
+</style>
+</head>
+<body>
+<h1>服装智能采购系统</h1>
+<p class="sub">定论：置信度级联架构 + 新品自动生成分支 · 2026-10-30</p>
+<div class="entries">
+  <div class="entry"><div class="icon">📷</div><div class="label">拍照</div></div>
+  <div class="entry"><div class="icon">🖼️</div><div class="label">从图片库选择</div></div>
+</div>
+<div class="flow">
+  <h2>五层级联流程</h2>
+  <div class="layer l1"><div class="num">1</div><div class="box">向量检索 — 从私有目录捞出 20 个候选款（Width.ai 微调嵌入，HybSID 语义码防同款异色混淆）</div></div>
+  <div class="arrow">↓</div>
+  <div class="layer l2"><div class="num">2</div><div class="box">文本交叉编码器 — 自动消化高置信候选</div></div>
+  <div class="arrow">↓ 模糊的</div>
+  <div class="layer l3"><div class="num">3</div><div class="box">Gemini 3.8 Flash 裁决 — 看图输出，JSON schema 锁死：款号 / 品名 / 颜色 / 尺码 / 单价 / 供应商</div></div>
+  <div class="arrow">↓</div>
+  <div class="layer l4"><div class="num">4</div><div class="box">MCP 库存查询 — 本店 / 总仓 / 他店数量</div></div>
+  <div class="arrow">↓</div>
+  <div class="layer l5"><div class="num">5</div><div class="box">生成采购单 — 单价、合计金额自动汇总输出</div></div>
+  <div class="newsku">新品分支：匹配失败 + VLM 确认全新款 → 按「日期 + 序号 + 颜色码」自动生成款号 → 照片和属性写入目录库 → 采购单照常输出。存量款走匹配，新款走生成，汇合到同一张单。</div>
+</div>
+<div class="notes">
+  <b>技术选型</b><br>
+  <span class="tag">Gemini 3.8 Flash</span> OCR + 字段提取<br>
+  <span class="tag">Width.ai 微调嵌入</span> 第一层检索精度<br>
+  <span class="tag">LangGraph</span> 编排<br>
+  <span class="tag">MCP Server</span> 封装 ERP<br>
+  <span class="tag">HybSID 语义码</span> 同款异色<br><br>
+  <b>MVP 顺序</b>：先跑通第 2 + 3 层，第 1 层后加。
+</div>
+</body>
+</html>
